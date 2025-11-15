@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow update: if request.auth != null && (request.auth.uid == userId && !('role' in request.resource.data) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Attendance
+    match /attendance/{docId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // Daily logs
+    match /dailyLogs/{docId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow update: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Weekly tasks
+    match /weeklyTasks/{docId} {
+      allow create, update, delete: if isAdmin();
+      allow read: if request.auth != null;
+    }
+
+    // Task submissions
+    match /taskSubmissions/{docId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow update: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.userId && resource.data.status == 'pending');
+      allow delete: if isAdmin();
+    }
+
+    // Leave requests
+    match /leaveRequests/{docId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow update: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.userId && resource.data.status == 'pending');
+      allow delete: if isAdmin();
+    }
+
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
