@@ -1,7 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import {
+  doc,
+  onSnapshot,
+  setDoc,
+  collection,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 type SocialLinks = {
@@ -39,6 +46,22 @@ export default function DashboardPage() {
       setEndDate(data?.endDate ?? DEFAULT_END_DATE);
       setSocial(data?.social ?? {});
       setProfileLoading(false);
+    });
+
+    return () => unsub();
+  }, [user]);
+
+  // Keep leavesTaken in sync with approved leaves in the `leaves` collection.
+  useEffect(() => {
+    if (!user) return;
+    const leavesRef = collection(db, "leaves");
+    const q = query(
+      leavesRef,
+      where("userId", "==", user.uid),
+      where("status", "==", "approved")
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      setLeavesTaken(snap.size);
     });
 
     return () => unsub();
