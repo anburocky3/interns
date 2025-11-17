@@ -22,6 +22,7 @@ import {
 interface AuthContextValue {
   user: FirebaseUser | null;
   role: "intern" | "admin" | null;
+  isModerator: boolean;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -35,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [role, setRole] = useState<"intern" | "admin" | null>(null);
+  const [isModerator, setIsModerator] = useState(false);
   const [loading, setLoading] = useState(true);
   const [deniedMessage, setDeniedMessage] = useState<string | null>(null);
   const router = useRouter();
@@ -101,11 +103,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         });
       }
 
-      // listen to updates on the user's profile to pick up role changes
+      // listen to updates on the user's profile to pick up role and moderator flag
       const unsubUser = onSnapshot(userRef, (docSnap) => {
-        const data = docSnap.data() as { role?: string } | undefined;
+        const data = docSnap.data() as
+          | { role?: string; moderator?: boolean }
+          | undefined;
         if (data?.role === "admin") setRole("admin");
         else setRole("intern");
+        setIsModerator(Boolean(data?.moderator));
       });
 
       return () => unsubUser();
@@ -178,7 +183,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, role, loading, signInWithGoogle, signOut, deniedMessage }}
+      value={{
+        user,
+        role,
+        isModerator,
+        loading,
+        signInWithGoogle,
+        signOut,
+        deniedMessage,
+      }}
     >
       {children}
     </AuthContext.Provider>

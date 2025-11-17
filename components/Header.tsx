@@ -7,7 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 
 export const Header: React.FC = () => {
-  const { signInWithGoogle, deniedMessage, user, signOut, role } = useAuth();
+  const { signInWithGoogle, deniedMessage, user, signOut, role, isModerator } =
+    useAuth();
   const pathname = usePathname();
 
   const [alertOpen, setAlertOpen] = useState(false);
@@ -55,6 +56,17 @@ export const Header: React.FC = () => {
               >
                 Dashboard
               </Link>
+              {isModerator && (
+                <Link
+                  href="/mods"
+                  className={`hover:text-blue-300 px-2 py-1 rounded ${
+                    isActive("/mods") ? "text-orange-300" : "text-white/90"
+                  }`}
+                  aria-current={isActive("/mods") ? "page" : undefined}
+                >
+                  Moderator Panel
+                </Link>
+              )}
               <Link
                 href="/leaves"
                 className={`hover:text-blue-300 px-2 py-1 rounded ${
@@ -64,7 +76,7 @@ export const Header: React.FC = () => {
               >
                 Leaves
               </Link>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 bg-blue-900 p-2 rounded-md">
                 <Image
                   src={user.photoURL ?? "/images/avatar-placeholder.png"}
                   alt={user.displayName ?? user.email ?? "User avatar"}
@@ -72,7 +84,7 @@ export const Header: React.FC = () => {
                   height={36}
                   className="rounded-full"
                 />
-                <div className="flex flex-col">
+                <div className="flex flex-col ">
                   <span className="text-sm font-medium whitespace-nowrap">
                     {user.displayName?.split(" ")[0] ??
                       user.email?.split("@")[0] ??

@@ -14,21 +14,7 @@ import {
   LucideGithub,
   GithubIcon,
 } from "lucide-react";
-
-function githubAvatarFromUrl(url?: string) {
-  if (!url) return undefined;
-  try {
-    const u = url.trim();
-    // accept either full url or username
-    if (u.includes("github.com")) {
-      const parts = u.split("/").filter(Boolean);
-      return `https://github.com/${parts[parts.length - 1]}.png`;
-    }
-    return `https://github.com/${u}.png`;
-  } catch {
-    return undefined;
-  }
-}
+import { githubAvatarFromUrl } from "@/lib/helpers";
 
 export const InternCard: React.FC<{ intern: Intern }> = ({ intern }) => {
   const avatarSrc =

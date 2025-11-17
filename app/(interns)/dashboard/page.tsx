@@ -1,11 +1,10 @@
 "use client";
-import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import AdminPanel from "@/components/dashboard/AdminPanel";
 import InternDashboard from "@/components/dashboard/InternDashboard";
 
 export default function DashboardPage() {
-  const { user, loading, role } = useAuth();
+  const { user, loading, role, isModerator } = useAuth();
 
   if (loading) {
     return (
@@ -25,5 +24,6 @@ export default function DashboardPage() {
     );
   }
 
-  return role === "admin" ? <AdminPanel /> : <InternDashboard />;
+  if (role === "admin") return <AdminPanel />;
+  return <InternDashboard />;
 }
