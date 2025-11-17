@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import type { Intern } from "@/data/internsData";
 import Image from "next/image";
 import { GraduationCap } from "lucide-react";
+import { InternProfile } from "@/types";
 
-type Props = { interns: Intern[] };
+type Props = { interns: InternProfile[] };
 
 function shuffle<T>(arr: T[]) {
   const a = arr.slice();
@@ -22,8 +22,8 @@ export default function PresentationGenerator({ interns }: Props) {
   const [onlyStudents, setOnlyStudents] = useState(false);
   const [onlyWifi, setOnlyWifi] = useState(false);
 
-  const [queue, setQueue] = useState<Intern[]>([]);
-  const [presentedIds, setPresentedIds] = useState<number[]>([]);
+  const [queue, setQueue] = useState<InternProfile[]>([]);
+  const [presentedIds, setPresentedIds] = useState<string[]>([]);
 
   const [runningTimerSeconds, setRunningTimerSeconds] = useState<number>(0);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -91,9 +91,7 @@ export default function PresentationGenerator({ interns }: Props) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
         // ensure items are numbers
-        const nums = parsed
-          .map((x) => Number(x))
-          .filter((n) => !Number.isNaN(n));
+        const nums = parsed.map((x) => x);
         // avoid calling setState synchronously inside the effect to prevent cascading renders
         setTimeout(() => {
           setPresentedIds(nums);
@@ -119,7 +117,7 @@ export default function PresentationGenerator({ interns }: Props) {
 
   const available = useMemo(() => {
     return interns.filter((i) => {
-      if (presentedIds.includes(i.id)) return false;
+      if (presentedIds.includes(i.uid)) return false;
       if (gender !== "all" && i.gender !== gender) return false;
       if (onlyStudents && !i.isStudent) return false;
       if (onlyWifi && !i.hasWifi) return false;
@@ -239,7 +237,7 @@ export default function PresentationGenerator({ interns }: Props) {
     setQueue((q) => {
       if (q.length === 0) return q;
       const [first, ...rest] = q;
-      setPresentedIds((p) => Array.from(new Set([...p, first.id])));
+      setPresentedIds((p) => Array.from(new Set([...p, first.uid])));
       // advance queue but DO NOT auto-start the timer — user will click Start
       // clear expired/warning state and any running intervals
       setExpired(false);
@@ -313,8 +311,8 @@ export default function PresentationGenerator({ interns }: Props) {
                     <Image
                       src={
                         queue[0].avatar ||
-                        (queue[0].socialLinks?.github
-                          ? `https://github.com/${queue[0].socialLinks.github
+                        (queue[0].social?.github
+                          ? `https://github.com/${queue[0].social.github
                               .split("/")
                               .pop()}.png`
                           : "/default-avatar.png")
@@ -422,13 +420,13 @@ export default function PresentationGenerator({ interns }: Props) {
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2">
               {queue.slice(1, 13).map((m) => (
-                <div key={m.id} className="w-20 text-center">
+                <div key={m.uid} className="w-20 text-center">
                   <div className="w-20 h-20 rounded overflow-hidden bg-neutral-800 mx-auto relative">
                     <Image
                       src={
                         m.avatar ||
-                        (m.socialLinks?.github
-                          ? `https://github.com/${m.socialLinks.github
+                        (m.social?.github
+                          ? `https://github.com/${m.social.github
                               .split("/")
                               .pop()}.png`
                           : "/default-avatar.png")
@@ -487,7 +485,8 @@ export default function PresentationGenerator({ interns }: Props) {
             </div>
 
             <div className="mt-3 text-sm text-gray-300">
-              {available.filter((i) => i.id !== queue[0]?.id).length} available
+              {available.filter((i) => i.uid !== queue[0]?.uid).length}{" "}
+              available
             </div>
 
             <div className="mt-4">

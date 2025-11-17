@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import type { Intern } from "@/data/internsData";
 import {
   GraduationCap,
   Wifi,
@@ -15,11 +14,12 @@ import {
   GithubIcon,
 } from "lucide-react";
 import { githubAvatarFromUrl } from "@/lib/helpers";
+import { InternProfile } from "@/types";
 
-export const InternCard: React.FC<{ intern: Intern }> = ({ intern }) => {
+export const InternCard: React.FC<{ intern: InternProfile }> = ({ intern }) => {
   const avatarSrc =
     intern.avatar ||
-    githubAvatarFromUrl(intern.socialLinks?.github) ||
+    githubAvatarFromUrl(intern.social?.github) ||
     "/default-avatar.png";
 
   return (
@@ -35,9 +35,9 @@ export const InternCard: React.FC<{ intern: Intern }> = ({ intern }) => {
         />
 
         <div className="absolute top-2 right-2 flex items-center gap-2">
-          {intern.socialLinks?.instagram ? (
+          {intern.social?.instagram ? (
             <a
-              href={intern.socialLinks.instagram}
+              href={intern.social?.instagram}
               target="_blank"
               rel="noreferrer"
               aria-label="instagram"
@@ -47,9 +47,9 @@ export const InternCard: React.FC<{ intern: Intern }> = ({ intern }) => {
             </a>
           ) : null}
 
-          {intern.socialLinks?.linkedin ? (
+          {intern.social?.linkedin ? (
             <a
-              href={intern.socialLinks.linkedin}
+              href={intern.social.linkedin}
               target="_blank"
               rel="noreferrer"
               aria-label="LinkedIn"
@@ -98,7 +98,7 @@ export const InternCard: React.FC<{ intern: Intern }> = ({ intern }) => {
           target="_blank"
           rel="noreferrer"
           className="flex justify-center bg-amber-500 hover:bg-amber-600 items-center px-3 text-white py-1.5 rounded"
-          href={intern.socialLinks?.tasks}
+          href={intern.social?.tasks}
         >
           <ExternalLink className="mr-1" size={16} />
           Tasks
@@ -108,7 +108,7 @@ export const InternCard: React.FC<{ intern: Intern }> = ({ intern }) => {
           target="_blank"
           rel="noreferrer"
           className="flex justify-center bg-white hover:bg-gray-200 items-center px-3 text-neutral-900 py-1.5 rounded"
-          href={intern.socialLinks?.github}
+          href={intern.social?.github}
         >
           <GithubIcon className="mr-1" size={16} />
           Github

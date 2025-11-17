@@ -1,9 +1,9 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import type { Intern } from "@/data/internsData";
 import InternCard from "@/components/InternCard";
+import { InternProfile } from "@/types";
 
-export default function InternGrid({ interns }: { interns: Intern[] }) {
+export default function InternGrid({ interns }: { interns: InternProfile[] }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "student" | "wifi">("all");
   // no modal selection — render cards directly
@@ -53,7 +53,7 @@ export default function InternGrid({ interns }: { interns: Intern[] }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filtered.map((intern) => (
-          <InternCard key={intern.id} intern={intern} />
+          <InternCard key={intern.uid} intern={intern} />
         ))}
       </div>
     </div>

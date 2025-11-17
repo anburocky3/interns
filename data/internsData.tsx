@@ -1,24 +1,4 @@
-export type Intern = {
-  id: number;
-  employee_id?: string;
-  name: string;
-  avatar?: string;
-  position?: string;
-  gender?: string;
-  socialLinks?: {
-    instagram?: string;
-    linkedin?: string;
-    github?: string;
-    tasks?: string;
-  };
-  isStudent?: boolean;
-  hasWifi?: boolean;
-  location?: string;
-  email?: string;
-  mobile?: string;
-};
-
-export const internsData: Intern[] = [
+export const internsData = [
   {
     id: 2,
     employee_id: "",

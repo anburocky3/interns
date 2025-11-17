@@ -2,10 +2,10 @@
 import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Intern } from "@/data/internsData";
+import { InternProfile } from "@/types";
 
 export function useUserData(userId?: string) {
-  const [data, setData] = useState<Intern[] | null>(null);
+  const [data, setData] = useState<InternProfile[] | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export function useUserData(userId?: string) {
       // "calling setState synchronously within an effect" warning and
       // reduce the risk of cascading renders.
       Promise.resolve().then(() => {
-        setData(snap.exists() ? (snap.data() as Intern[]) : null);
+        setData(snap.exists() ? (snap.data() as InternProfile[]) : null);
         setLoading(false);
       });
     });

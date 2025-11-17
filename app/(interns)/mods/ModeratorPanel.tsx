@@ -16,24 +16,7 @@ import { GraduationCap, Wifi } from "lucide-react";
 import { formatIsoDate, githubAvatarFromUrl } from "@/lib/helpers";
 import Image from "next/image";
 import Link from "next/link";
-
-interface InternProfile {
-  uid: string;
-  name?: string | null;
-  email?: string | null;
-  avatar?: string | null;
-  isStudent?: boolean;
-  hasWifi?: boolean;
-  position?: string | null;
-  location?: string | null;
-  mobile?: string | null;
-  social?: {
-    linkedin?: string | null;
-    github?: string | null;
-    twitter?: string | null;
-    website?: string | null;
-  };
-}
+import { InternProfile } from "@/types";
 
 function todayISO() {
   const d = new Date();
@@ -66,22 +49,24 @@ export default function ModeratorPanel() {
     const unsub = onSnapshot(q, (snap) => {
       const list: InternProfile[] = [];
       snap.forEach((s) => {
-        const d = s.data() as InternProfile | undefined;
+        const d = s.data() as InternProfile;
         list.push({
-          uid: d?.uid || s.id,
-          name: d?.name || null,
-          email: d?.email || null,
-          avatar: d?.avatar || null,
-          position: d?.position || null,
+          uid: d.uid,
+          name: d.name,
+          email: d.email,
+          avatar: d?.avatar,
+          position: d?.position,
           isStudent: Boolean(d?.isStudent),
           hasWifi: Boolean(d?.hasWifi),
-          location: d?.location || null,
-          mobile: d?.mobile || null,
+          location: d?.location,
+          mobile: d?.mobile,
           social: {
-            linkedin: d?.social?.linkedin || null,
-            github: d?.social?.github || null,
-            twitter: d?.social?.twitter || null,
-            website: d?.social?.website || null,
+            linkedin: d?.social?.linkedin,
+            github: d?.social?.github,
+            twitter: d?.social?.twitter,
+            website: d?.social?.website,
+            instagram: d?.social?.instagram,
+            tasks: d?.social?.tasks,
           },
         });
       });

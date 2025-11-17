@@ -1,10 +1,12 @@
 import PresentationGenerator from "@/components/PresentationGenerator";
-import internsData from "@/data/internsData";
+import getCachedUsers from "@/lib/getUsers";
 
-export default function PresentationPage() {
+export default async function PresentationPage() {
+  const interns = await getCachedUsers();
+
   return (
     <div className="p-6">
-      <PresentationGenerator interns={internsData} />
+      <PresentationGenerator interns={interns} />
     </div>
   );
 }

@@ -58,12 +58,17 @@ function weeksForMonth(monthIso: string) {
   const month = Number(mStr); // 1-based
   const first = new Date(year, month - 1, 1);
   const last = new Date(year, month, 0);
-  const set = new Set<string>();
-  for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1)) {
-    const iso = d.toISOString().slice(0, 10);
-    set.add(weekStart(iso));
+  // find the Monday that contains the first day of the month
+  const firstIso = first.toISOString().slice(0, 10);
+  const out: string[] = [];
+  for (
+    let cur = new Date(weekStart(firstIso) + "T00:00:00");
+    cur <= last;
+    cur.setDate(cur.getDate() + 7)
+  ) {
+    out.push(cur.toISOString().slice(0, 10));
   }
-  return Array.from(set).sort();
+  return out;
 }
 
 export default function AttendancePage() {
@@ -74,12 +79,14 @@ export default function AttendancePage() {
   const [selectedWeekStart, setSelectedWeekStart] = useState<string>(() =>
     weekStart(todayISO())
   );
+  const [pickedDate, setPickedDate] = useState<string>(() => todayISO());
   const [selectedMonth, setSelectedMonth] = useState<string>(() =>
     todayISO().slice(0, 7)
   );
-  const [usersMap, setUsersMap] = useState<
-    Record<string, { name?: string | null }>
-  >({});
+  // usersList will hold interns sorted alphabetically
+  const [usersList, setUsersList] = useState<
+    Array<{ uid: string; name?: string | null }>
+  >([]);
 
   useEffect(() => {
     if (!user) return;
@@ -108,16 +115,25 @@ export default function AttendancePage() {
       setMoms(map);
     });
 
-    // users map (only interns)
+    // users map + sorted list (only interns)
     const usersRef = collection(db, "users");
     const uq = query(usersRef, where("role", "==", "intern"));
     const unsubU = onSnapshot(uq, (snap) => {
       const m: Record<string, { name?: string | null }> = {};
+      const list: Array<{ uid: string; name?: string | null }> = [];
       snap.forEach((s) => {
         const d = s.data() as UserDoc | undefined;
-        m[s.id] = { name: d?.name ?? d?.email ?? null };
+        const name = d?.name ?? d?.email ?? null;
+        m[s.id] = { name };
+        list.push({ uid: s.id, name });
       });
-      setUsersMap(m);
+      // sort alphabetically by name (nulls go last)
+      list.sort((a, b) => {
+        const na = a.name ?? "";
+        const nb = b.name ?? "";
+        return String(na).localeCompare(String(nb));
+      });
+      setUsersList(list);
     });
 
     return () => {
@@ -218,8 +234,13 @@ export default function AttendancePage() {
             <label className="text-sm">Week (pick any date)</label>
             <input
               type="date"
-              value={selectedWeekStart}
-              onChange={(e) => setSelectedWeekStart(weekStart(e.target.value))}
+              value={pickedDate}
+              onChange={(e) => {
+                const v = e.target.value || todayISO();
+                setPickedDate(v);
+                const ws = weekStart(v);
+                if (ws) setSelectedWeekStart(ws);
+              }}
               className="px-2 py-1 rounded bg-white/5 text-sm"
             />
             <div className="text-sm text-gray-400">
@@ -288,65 +309,60 @@ export default function AttendancePage() {
                 </tr>
               </thead>
               <tbody>
-                {Object.keys(usersMap).length === 0 && (
+                {usersList.length === 0 && (
                   <tr>
                     <td colSpan={7} className="p-2 text-sm text-gray-400">
                       No interns found.
                     </td>
                   </tr>
                 )}
-                {Object.keys(usersMap)
-                  .sort((a, b) =>
-                    String(usersMap[a].name ?? a).localeCompare(
-                      String(usersMap[b].name ?? b)
-                    )
-                  )
-                  .map((uid, index) => {
-                    const s = weekStats[uid] ?? { present: 0, total: 0 };
-                    const pct = s.total
-                      ? Math.round((s.present / s.total) * 100)
-                      : 0;
-                    const weekDates = getWeekDates(selectedWeekStart);
-                    return (
-                      <tr key={uid} className="odd:bg-white/2">
-                        <td className="p-2 truncate">
-                          #{index + 1} - {usersMap[uid].name ?? uid}
-                        </td>
-                        {weekDates.map((d) => {
-                          const present = attendanceMap[d]?.[uid];
-                          return (
-                            <td key={d} className="p-2 text-center">
-                              {present === undefined ? (
-                                <span
-                                  className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-700 text-white/90"
-                                  title="Data not available"
-                                >
-                                  <Calendar className="w-4 h-4 text-gray-600" />
-                                </span>
-                              ) : present ? (
-                                <span
-                                  className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white"
-                                  title="Present"
-                                >
-                                  <Check className="w-4 h-4" />
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-rose-500 text-white">
-                                  <X className="w-4 h-4" />
-                                </span>
-                              )}
-                            </td>
-                          );
-                        })}
-                        <td className="p-2">
-                          <div className="text-xs text-gray-300">
-                            {s.present}/{s.total}
-                          </div>
-                          <div className="text-xs">{pct}%</div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                {usersList.map((u, index) => {
+                  const uid = u.uid;
+                  const s = weekStats[uid] ?? { present: 0, total: 0 };
+                  const pct = s.total
+                    ? Math.round((s.present / s.total) * 100)
+                    : 0;
+                  const weekDates = getWeekDates(selectedWeekStart);
+                  return (
+                    <tr key={uid} className="odd:bg-white/2">
+                      <td className="p-2 truncate">
+                        #{index + 1} - {u.name ?? uid}
+                      </td>
+                      {weekDates.map((d) => {
+                        const present = attendanceMap[d]?.[uid];
+                        return (
+                          <td key={d} className="p-2 text-center">
+                            {present === undefined ? (
+                              <span
+                                className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-700 text-white/90"
+                                title="Data not available"
+                              >
+                                <Calendar className="w-4 h-4 text-gray-600" />
+                              </span>
+                            ) : present ? (
+                              <span
+                                className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white"
+                                title="Present"
+                              >
+                                <Check className="w-4 h-4" />
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-rose-500 text-white">
+                                <X className="w-4 h-4" />
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                      <td className="p-2">
+                        <div className="text-xs text-gray-300">
+                          {s.present}/{s.total}
+                        </div>
+                        <div className="text-xs">{pct}%</div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -378,7 +394,7 @@ export default function AttendancePage() {
                 </tr>
               </thead>
               <tbody>
-                {Object.keys(usersMap).length === 0 && (
+                {usersList.length === 0 && (
                   <tr>
                     <td
                       colSpan={monthWeekStarts.length + 2}
@@ -388,56 +404,49 @@ export default function AttendancePage() {
                     </td>
                   </tr>
                 )}
-                {Object.keys(usersMap)
-                  .sort((a, b) =>
-                    String(usersMap[a].name ?? a).localeCompare(
-                      String(usersMap[b].name ?? b)
-                    )
-                  )
-                  .map((uid) => {
-                    const totals = monthTotals[uid] ?? { present: 0, total: 0 };
-                    const pct = totals.total
-                      ? Math.round((totals.present / totals.total) * 100)
-                      : 0;
-                    return (
-                      <tr key={uid} className="odd:bg-white/2">
-                        <td className="p-2 truncate">
-                          {usersMap[uid].name ?? uid}
-                        </td>
-                        {monthWeekStarts.map((ws) => {
-                          const w = monthWeekData[ws]?.[uid];
-                          if (!w || w.total === 0) {
-                            return (
-                              <td key={ws} className="p-2 text-center">
-                                <span className="inline-flex items-center justify-center w-8 h-6 rounded bg-gray-700 text-white/90">
-                                  -
-                                </span>
-                              </td>
-                            );
-                          }
-                          const wpct = Math.round((w.present / w.total) * 100);
+                {usersList.map((u) => {
+                  const uid = u.uid;
+                  const totals = monthTotals[uid] ?? { present: 0, total: 0 };
+                  const pct = totals.total
+                    ? Math.round((totals.present / totals.total) * 100)
+                    : 0;
+                  return (
+                    <tr key={uid} className="odd:bg-white/2">
+                      <td className="p-2 truncate">{u.name ?? uid}</td>
+                      {monthWeekStarts.map((ws) => {
+                        const w = monthWeekData[ws]?.[uid];
+                        if (!w || w.total === 0) {
                           return (
                             <td key={ws} className="p-2 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <span className="text-xs text-gray-200">
-                                  {w.present}/{w.total}
-                                </span>
-                                <span className="text-xs text-indigo-200">
-                                  {wpct}%
-                                </span>
-                              </div>
+                              <span className="inline-flex items-center justify-center w-8 h-6 rounded bg-gray-700 text-white/90">
+                                -
+                              </span>
                             </td>
                           );
-                        })}
-                        <td className="p-2">
-                          <div className="text-xs text-gray-300">
-                            {totals.present}/{totals.total}
-                          </div>
-                          <div className="text-xs">{pct}%</div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                        }
+                        const wpct = Math.round((w.present / w.total) * 100);
+                        return (
+                          <td key={ws} className="p-2 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <span className="text-xs text-gray-200">
+                                {w.present}/{w.total}
+                              </span>
+                              <span className="text-xs text-indigo-200">
+                                {wpct}%
+                              </span>
+                            </div>
+                          </td>
+                        );
+                      })}
+                      <td className="p-2">
+                        <div className="text-xs text-gray-300">
+                          {totals.present}/{totals.total}
+                        </div>
+                        <div className="text-xs">{pct}%</div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -1,8 +1,10 @@
 import InternGrid from "@/components/InternGrid";
-import internsData from "@/data/internsData";
+import getCachedUsers from "@/lib/getUsers";
 import Image from "next/image";
 
-export default function Home() {
+export default async function Home() {
+  const interns = await getCachedUsers();
+
   return (
     <div className="p-4">
       {/* Announcements */}
@@ -51,7 +53,7 @@ export default function Home() {
             </div>
           </div>
           <div className="col-span-12 md:col-span-10">
-            <InternGrid interns={internsData} />
+            <InternGrid interns={interns} />
           </div>
         </div>
       </div>
