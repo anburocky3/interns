@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser(null);
         setRole(null);
         setDeniedMessage(
-          "This portal is for internship candidates only. Access denied."
+          "This portal is for internship candidates only. Access denied.",
         );
         setLoading(false);
         return;
@@ -145,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         // ignore
       }
       throw new Error(
-        "This portal is for cyberdude internship candidates only. Access denied."
+        "This portal is for cyberdude internship candidates only. Access denied.",
       );
     }
 
@@ -156,9 +156,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         {
           uid: u.uid,
           email: u.email || null,
-          name: u.displayName || null,
+          // name: u.displayName || null,
         },
-        { merge: true }
+        { merge: true },
       );
       // Redirect to dashboard after successful sign-in
       try {
