@@ -19,4 +19,22 @@ export interface InternProfile {
     instagram?: string;
     tasks?: string;
   };
+  typingStats?: TypingStats;
+}
+
+export interface TypingStats {
+  bestWPM: number;
+  bestAccuracy: number;
+  lastPlayed?: string; // ISO timestamp
+  totalGamesPlayed?: number;
+  gamesThisMonth?: number;
+}
+
+export interface GameResult {
+  wpm: number;
+  accuracy: number;
+  correctChars: number;
+  totalChars: number;
+  isNewRecord: boolean;
+  timestamp: string;
 }

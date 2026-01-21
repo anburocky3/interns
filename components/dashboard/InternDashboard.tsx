@@ -13,6 +13,7 @@ import { ArrowLeft, GraduationCap, Wifi } from "lucide-react";
 import toast from "react-hot-toast";
 import Head from "next/head";
 import AudioUpload from "@/components/AudioUpload";
+import TypingTestModule from "../TypingTestModule";
 
 type SocialLinks = {
   twitter?: string | null;
@@ -529,6 +530,10 @@ export default function InternDashboard() {
             <div className="mt-2 text-xs text-white/80 text-center p-4">
               Total: {totalInternDays()} days
             </div>
+          </div>
+
+          <div className="p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-md border border-white/6">
+            <h3 className="text-sm text-gray-300">Test your Typing skills</h3>
           </div>
 
           <div className="p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-md border border-white/6">

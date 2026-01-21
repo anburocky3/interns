@@ -56,6 +56,15 @@ export const Header: React.FC = () => {
               >
                 Dashboard
               </Link>
+              <Link
+                href="/skills"
+                className={`hover:text-blue-300 px-2 py-1 rounded ${
+                  isActive("/skills") ? "text-orange-300" : "text-white/90"
+                }`}
+                aria-current={isActive("/") ? "page" : undefined}
+              >
+                Skills
+              </Link>
               {isModerator && (
                 <Link
                   href="/mods"
