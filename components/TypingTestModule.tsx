@@ -242,7 +242,7 @@ export default function TypingTestModule() {
 
   return (
     <div className="m-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="col-span-2 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-8 rounded-2xl shadow-2xl border border-white/10">
+      <div className="col-span-2 bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-8 rounded-2xl shadow-2xl border border-white/10 h-fit">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-white">Typing Speed Test</h2>
@@ -470,23 +470,21 @@ export default function TypingTestModule() {
               >
                 <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden bg-linear-to-br from-indigo-500 via-purple-500 to-blue-500 shadow-lg border border-white/10">
-                    <div className="absolute inset-0 bg-black/35" />
                     {leader.social?.github ? (
                       <Image
                         src={githubAvatarFromUrl(leader.social?.github) || ""}
                         alt={leader.name || "User"}
-                        width={40}
-                        height={40}
-                        className={`w-10 h-10 rounded-full `}
+                        width={48}
+                        height={48}
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-12 h-12  bg-black/60 top-2 -right-2  border border-white/10 rounded-full  flex items-center justify-center text-sm text-white font-semibold">
-                        #{idx + 1}
-                      </div>
+                      <div className="absolute inset-0 w-full h-full bg-black/30" />
                     )}
-                    {/* <div className="absolute -top-2 -right-2 bg-slate-900/90 border border-white/10 rounded-full w-6 h-6 flex items-center justify-center text-[11px] text-white font-semibold">
+                    <div className="absolute inset-0 bg-black/40" />
+                    <div className="absolute -top-2 -right-2 bg-slate-900/60 border border-white/10 rounded-full w-15 h-15 flex items-center justify-center  text-white font-semibold shadow-lg">
                       #{idx + 1}
-                    </div> */}
+                    </div>
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-white">

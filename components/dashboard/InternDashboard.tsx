@@ -9,11 +9,12 @@ import {
 } from "@/lib/helpers";
 import { doc, onSnapshot, setDoc, deleteField } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { ArrowLeft, GraduationCap, Wifi } from "lucide-react";
+import { ArrowLeft, ArrowRight, GraduationCap, Wifi } from "lucide-react";
 import toast from "react-hot-toast";
 import Head from "next/head";
 import AudioUpload from "@/components/AudioUpload";
 import TypingTestModule from "../TypingTestModule";
+import Link from "next/link";
 
 type SocialLinks = {
   twitter?: string | null;
@@ -532,9 +533,13 @@ export default function InternDashboard() {
             </div>
           </div>
 
-          <div className="p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-md border border-white/6">
-            <h3 className="text-sm text-gray-300">Test your Typing skills</h3>
-          </div>
+          <Link
+            href="/skills"
+            className="p-6 rounded-xl shadow-lg bg-blue-500 hover:bg-blue-600 cursor-pointer backdrop-blur-md flex justify-between items-center text-white"
+          >
+            <h3 className="font-semibold">Test your Typing skills</h3>
+            <ArrowRight className="" />
+          </Link>
 
           <div className="p-6 rounded-xl shadow-lg bg-white/5 backdrop-blur-md border border-white/6">
             <h3 className="text-sm text-gray-300">Quick Links</h3>
