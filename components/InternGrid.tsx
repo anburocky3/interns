@@ -7,26 +7,72 @@ import { Mars, Venus } from "lucide-react";
 export default function InternGrid({ interns }: { interns: InternProfile[] }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "student" | "wifi">("all");
+  const [showPastInterns, setShowPastInterns] = useState(false);
   const [genderFilter, setGenderFilter] = useState<"all" | "M" | "F">("all");
   // no modal selection — render cards directly
 
-  const filtered = useMemo(() => {
+  const currentInterns = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return interns.filter((i) => {
-      if (filter === "student" && !i.isStudent) return false;
-      if (filter === "wifi" && !i.hasWifi) return false;
-      if (genderFilter !== "all" && i.gender !== genderFilter) return false;
-      if (!q) return true;
-      return (
-        i.name.toLowerCase().includes(q) ||
-        (i.email || "").toLowerCase().includes(q) ||
-        (i.mobile || "").toLowerCase().includes(q)
-      );
-    });
+    return interns
+      .filter((i) => !(i.status === false || i.active === false))
+      .filter((i) => {
+        if (filter === "student" && !i.isStudent) return false;
+        if (filter === "wifi" && !i.hasWifi) return false;
+        if (genderFilter !== "all" && i.gender !== genderFilter) return false;
+        if (!q) return true;
+        return (
+          i.name.toLowerCase().includes(q) ||
+          (i.email || "").toLowerCase().includes(q) ||
+          (i.mobile || "").toLowerCase().includes(q)
+        );
+      });
   }, [interns, query, filter, genderFilter]);
+
+  const pastInterns = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return interns
+      .filter((i) => i.status === false || i.active === false)
+      .filter((i) => {
+        if (filter === "student" && !i.isStudent) return false;
+        if (filter === "wifi" && !i.hasWifi) return false;
+        if (genderFilter !== "all" && i.gender !== genderFilter) return false;
+        if (!q) return true;
+        return (
+          i.name.toLowerCase().includes(q) ||
+          (i.email || "").toLowerCase().includes(q) ||
+          (i.mobile || "").toLowerCase().includes(q)
+        );
+      });
+  }, [interns, query, filter, genderFilter]);
+
+  const filtered = showPastInterns ? pastInterns : currentInterns;
 
   return (
     <div className="space-y-6">
+      {/* Tabs Section */}
+      <div className="flex gap-x-3 mb-3">
+        <button
+          onClick={() => setShowPastInterns(false)}
+          className={`px-4 py-2 font-medium transition-all ${
+            !showPastInterns
+              ? "text-blue-500 border-b-2 border-blue-500"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          On-going
+        </button>
+        <button
+          onClick={() => setShowPastInterns(true)}
+          className={`px-4 py-2 font-medium transition-all ${
+            showPastInterns
+              ? "text-blue-500 border-b-2 border-blue-500"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Past Interns
+        </button>
+      </div>
+
       {/* Filters Section */}
       <div className="bg-neutral-800/50 backdrop-blur-sm border border-neutral-700 rounded-xl p-4 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
@@ -97,7 +143,10 @@ export default function InternGrid({ interns }: { interns: InternProfile[] }) {
               <span className="font-semibold text-white">
                 {filtered.length}
               </span>
-              <span className="text-gray-500"> / {interns.length}</span>
+              <span className="text-gray-500">
+                {" "}
+                / {showPastInterns ? pastInterns.length : currentInterns.length}
+              </span>
             </div>
           </div>
         </div>
@@ -119,6 +168,7 @@ export default function InternGrid({ interns }: { interns: InternProfile[] }) {
             onClick={() => {
               setQuery("");
               setFilter("all");
+              setShowPastInterns(false);
               setGenderFilter("all");
             }}
             className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"

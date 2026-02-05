@@ -9,6 +9,9 @@ export interface InternProfile {
   position?: string;
   isStudent?: boolean;
   hasWifi?: boolean;
+  status?: boolean;
+  active?: boolean;
+  certificate?: string;
   location?: string;
   mobile?: string;
   audioIntroUrl?: string;

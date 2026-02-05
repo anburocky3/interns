@@ -58,12 +58,12 @@ export async function getCachedUsers(
 
   const snap = await getDocs(q);
 
-  // Include users that either don't have `active` set or have it set to `true`.
-  // Exclude users where `active` is explicitly `false`.
-  const users: InternProfile[] = snap.docs
-    .map((d) => d.data() as InternProfile & { active?: boolean })
-    .filter((u) => u.active !== false)
-    .map((u) => ({ ...(u as InternProfile) }));
+  // Include all users (both active and inactive) to support filtering by status
+  // InternGrid will filter based on active/status field
+  const users: InternProfile[] = snap.docs.map((d) => {
+    const data = d.data() as InternProfile & { active?: boolean };
+    return { ...data } as InternProfile;
+  });
   cache = { ts: Date.now(), data: users };
   return users;
 }

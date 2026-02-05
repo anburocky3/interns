@@ -15,10 +15,12 @@ import {
   Volume2,
   Play,
   Pause,
+  Trophy,
 } from "lucide-react";
 import { githubAvatarFromUrl } from "@/lib/helpers";
 import { InternProfile } from "@/types";
 import Link from "next/link";
+import { AlertCircle } from "lucide-react";
 
 export const InternCard: React.FC<{ intern: InternProfile }> = ({ intern }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -65,6 +67,8 @@ export const InternCard: React.FC<{ intern: InternProfile }> = ({ intern }) => {
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
+
+  const isPastIntern = intern.status === false || intern.active === false;
 
   const avatarSrc =
     intern.avatar ||
@@ -153,7 +157,7 @@ export const InternCard: React.FC<{ intern: InternProfile }> = ({ intern }) => {
         </div>
 
         {/* Self-Introduction Audio Player */}
-        {intern.audioIntroUrl && (
+        {intern.audioIntroUrl && !isPastIntern && (
           <div className="mt-4 bg-linear-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/40 rounded-xl p-1 hover:border-purple-500/60 transition-all">
             <audio
               ref={audioRef}
@@ -234,6 +238,13 @@ export const InternCard: React.FC<{ intern: InternProfile }> = ({ intern }) => {
           Github
         </button>
       </div>
+
+      {isPastIntern && intern.certificate && (
+        <div className="my-3 flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-lg p-2 text-left">
+          <Trophy size={16} className="text-blue-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-300">{intern.certificate}</p>
+        </div>
+      )}
     </Link>
   );
 };
