@@ -125,18 +125,21 @@ export async function getTopTypingLeaders(
           name?: string;
           email?: string;
           typingStats?: TypingStats;
+          active?: boolean;
+          social?: Record<string, string>;
         };
         const stats = data.typingStats || { bestWPM: 0, bestAccuracy: 0 };
         return {
           uid: docSnap.id,
           name: data.name || data.email || "Unknown",
           email: data.email || "",
-          social: (data as { social?: Record<string, string> }).social || {},
+          social: data.social || {},
+          active: data.active,
           bestWPM: stats.bestWPM || 0,
           bestAccuracy: stats.bestAccuracy || 0,
         };
       })
-      .filter((item) => item.bestWPM > 0);
+      .filter((item) => item.bestWPM > 0 && item.active !== false);
   } catch (error) {
     console.error("Error fetching typing leaderboard:", error);
     throw error;

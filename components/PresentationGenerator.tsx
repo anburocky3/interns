@@ -117,6 +117,7 @@ export default function PresentationGenerator({ interns }: Props) {
 
   const available = useMemo(() => {
     return interns.filter((i) => {
+      if (i.active === false) return false;
       if (presentedIds.includes(i.uid)) return false;
       if (gender !== "all" && i.gender !== gender) return false;
       if (onlyStudents && !i.isStudent) return false;

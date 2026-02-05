@@ -43,11 +43,12 @@ export default function ModeratorPanel() {
     const loadInterns = async () => {
       try {
         const users = await getCachedUsers("dev");
-        setInterns(users);
+        const activeUsers = users.filter((it) => it.active !== false);
+        setInterns(activeUsers);
         // reset selection when intern list changes
         setSelected((prev) => {
           const next: Record<string, boolean> = {};
-          users.forEach((it) => {
+          activeUsers.forEach((it) => {
             next[it.uid] = !!prev[it.uid];
           });
           return next;

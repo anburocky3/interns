@@ -10,8 +10,9 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "CyberDude Interns25",
-  description: "Platform for managing CyberDude interns",
+  title: "CyberDude Live Internship 2025",
+  description:
+    "Discover the CyberDude Live Internship 2025 - an immersive program connecting talented interns with industry leaders. Explore profiles, projects, and opportunities in technology and innovation.",
 };
 
 export default function RootLayout({

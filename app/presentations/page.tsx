@@ -33,8 +33,12 @@ export const metadata: Metadata = {
     description: "Interactive presentation mode to showcase CyberDude interns.",
     images: ["https://jobs.cyberdudenetworks.com/cyberdude-jobs-banner.png"],
   },
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default async function PresentationPage() {

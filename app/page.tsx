@@ -36,8 +36,12 @@ export const metadata: Metadata = {
       "Explore the talented interns of the CyberDude Internship Program.",
     images: ["https://jobs.cyberdudenetworks.com/cyberdude-jobs-banner.png"],
   },
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default async function Home() {

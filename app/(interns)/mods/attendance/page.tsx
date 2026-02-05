@@ -126,10 +126,11 @@ export default function AttendancePage() {
     const loadUsers = async () => {
       try {
         const users = await getCachedUsers("dev");
+        const activeUsers = users.filter((user) => user.active !== false);
         const list: InternProfile[] = [];
 
         // This assumes the InternProfile has a uid field or we need to handle this differently
-        users.forEach((user: InternProfile) => {
+        activeUsers.forEach((user: InternProfile) => {
           list.push({
             uid: user.uid || "",
             name: user.name || "",
