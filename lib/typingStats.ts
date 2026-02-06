@@ -8,6 +8,7 @@ import {
   orderBy,
   query,
   limit,
+  where,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import toast from "react-hot-toast";
@@ -112,10 +113,12 @@ export async function getTopTypingLeaders(
 ): Promise<(InternProfile & { bestWPM: number; bestAccuracy: number })[]> {
   try {
     const usersRef = collection(db, "users");
+    const fetchLimit = Math.max(limitCount * 3, limitCount);
     const q = query(
       usersRef,
+      where("typingStats.bestWPM", ">", 0),
       orderBy("typingStats.bestWPM", "desc"),
-      limit(limitCount),
+      limit(fetchLimit),
     );
     const snap = await getDocs(q);
 
@@ -139,7 +142,8 @@ export async function getTopTypingLeaders(
           bestAccuracy: stats.bestAccuracy || 0,
         };
       })
-      .filter((item) => item.bestWPM > 0 && item.active !== false);
+      .filter((item) => item.bestWPM > 0 && item.active !== false)
+      .slice(0, limitCount);
   } catch (error) {
     console.error("Error fetching typing leaderboard:", error);
     throw error;
